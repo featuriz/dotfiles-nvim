@@ -9,6 +9,7 @@ My personal Neovim setup for development across multiple machines.
 - A Nerd Font (for icons)
 - Node.js (for LSP support)
 - Ripgrep (for Telescope)
+- RUST + CARGO
 
 ## 🚀 Installation
 
