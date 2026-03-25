@@ -1,0 +1,35 @@
+# Swap files
+*.swp
+*.swo
+*.swn
+
+# Backup files
+*~
+*.backup
+*.bak
+
+# Neovim cache
+.lazy/
+.luarc.json
+.session.vim
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Sensitive files (IMPORTANT!)
+.env
+secrets.lua
+local.lua  # if you use local overrides
+coc-settings.json
+
+# Plugin manager files
+lazy-lock.json  # optional, may cause conflicts
+packer_compiled.lua
+
+# Logs
+*.log
+
+# Test files
+test/
+spec/
