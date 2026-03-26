@@ -227,7 +227,7 @@ return {
 		},
 		config = function()
 			require("codeium").setup({
-				virtual_text = { enabled = true }, -- Turn this off if using blink
+				virtual_text = { enabled = true },
 			})
 		end,
 	},
