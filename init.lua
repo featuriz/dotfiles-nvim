@@ -213,3 +213,9 @@ vim.keymap.set("n", "<leader>fX", ":FzfLua diagnostics_workspace<CR>", { desc = 
 
 -- ============================================================================
 --
+vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+	pattern = "templ",
+	callback = function()
+		vim.treesitter.start()
+	end,
+})

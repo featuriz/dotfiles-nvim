@@ -23,7 +23,7 @@ vim.diagnostic.config({
 	severity_sort = true,
 	float = {
 		border = "rounded",
-		source = "always",
+		source = true,
 		header = "",
 		prefix = "",
 		focusable = false,
@@ -68,3 +68,38 @@ vim.lsp.config["gopls"] = {
 	},
 }
 vim.lsp.enable("gopls")
+
+-- Templ
+vim.lsp.config["templ"] = {}
+vim.lsp.enable("templ")
+
+-- HTML (Optional but highly recommended for templ)
+vim.lsp.config["html"] = {
+	filetypes = { "html", "templ" },
+}
+vim.lsp.enable("html")
+
+-- HTMX
+vim.lsp.config["htmx"] = {
+	filetypes = { "html", "templ" },
+}
+vim.lsp.enable("htmx")
+
+-- Tailwind CSS
+vim.lsp.config["tailwindcss"] = {
+	filetypes = { "html", "templ", "javascript" }, -- , "svelte", "vue"
+	settings = {
+		tailwindCSS = {
+			includeLanguages = {
+				templ = "html", -- Treat templ as html for tailwind classes
+			},
+		},
+	},
+}
+vim.lsp.enable("tailwindcss")
+
+-- Emmet (Optional: for fast HTML expansion like div.container > ul > li*3)
+vim.lsp.config["emmet_ls"] = {
+	filetypes = { "html", "templ", "css", "sass", "scss", "less" },
+}
+vim.lsp.enable("emmet_ls")

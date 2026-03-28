@@ -87,7 +87,26 @@ return {
 
 	-- Treesitter
 	-- https://github.com/nvim-treesitter/nvim-treesitter
-	{ "nvim-treesitter/nvim-treesitter", branch = "main", lazy = false, build = ":TSUpdate" },
+	-- { "nvim-treesitter/nvim-treesitter", branch = "main", lazy = false, build = ":TSUpdate" },
+	-- Treesitter
+	{
+		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		lazy = false,
+		build = ":TSUpdate",
+		config = function()
+			local ts = require("nvim-treesitter")
+			ts.setup({
+				ensure_installed = { "templ", "go", "html" },
+				highlight = {
+					enable = true,
+					additional_vim_regex_highlighting = false,
+				},
+			})
+			-- Register the language
+			vim.treesitter.language.register("templ", "templ")
+		end,
+	},
 
 	-- https://github.com/nvim-lualine/lualine.nvim
 	-- {
