@@ -1,162 +1,246 @@
--- https://github.com/radleylewis/nvim-lite/blob/master/init.lua
---
-require("config.lazy")
--- require("config.cmp")
-require("config.status_line")
+-- 1. Load plugins FIRST (must come before anything that uses them)
+require("config.plugins")
+require("config.statusline")
 require("config.lsp")
--- require("config.other")
+require("config.other")
+require("config.ai")
 
--- Color
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.cursorline = true
+vim.opt.wrap = false
+vim.opt.scrolloff = 10 -- keep lines around cursor
+vim.opt.sidescrolloff = 10
+
+-- Indentation
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2 -- IMPORTANT: preserved from old config
+vim.opt.expandtab = true
+vim.opt.smartindent = true
+vim.opt.autoindent = true
+
+-- Search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+
+-- UI
 vim.opt.termguicolors = true
 vim.cmd.colorscheme("habamax")
 
+vim.opt.signcolumn = "yes" -- always show signs
+vim.opt.colorcolumn = "100" -- ruler at 100 chars
+vim.opt.showmatch = true -- highlight matching brackets
+-- vim.opt.cmdheight = 1
+vim.opt.showmode = false -- using statusline instead
+vim.opt.pumheight = 10
+vim.opt.pumblend = 10
+vim.opt.winblend = 0
+
+-- Completion (still required for cmp/blink)
+vim.opt.completeopt = "menuone,noinsert,noselect"
+
+-- Performance
+vim.opt.lazyredraw = true
+vim.opt.synmaxcol = 300
+
+-- Visual cleanup
+vim.opt.fillchars = { eob = " " } -- remove ~ lines
+
+-- Clipboard
+vim.opt.clipboard:append("unnamedplus")
+
+-- Toggle Neo-tree
+vim.keymap.set("n", "<leader>e", function()
+	require("neo-tree.command").execute({ toggle = true, dir = vim.loop.cwd() })
+end, { desc = "File Explorer (Neo-tree)" })
+
 -- ============================================================================
--- OPTIONS
+-- GLOBAL STATUSLINE (ONE FOR ENTIRE UI)
 -- ============================================================================
-vim.opt.number = true -- line number
-vim.opt.relativenumber = true -- relative line numbers
--- vim.opt.statuscolumn = "%s %{v:lnum} %{v:relnum} "
-vim.opt.cursorline = true -- highlight current line
-vim.opt.wrap = false -- do not wrap lines by default
-vim.opt.scrolloff = 10 -- keep 10 lines above/below cursor
-vim.opt.sidescrolloff = 10 -- keep 10 lines to left/right of cursor
+-- WHY:
+-- Shows ONLY one statusline for whole Neovim instance
+-- Always reflects the ACTIVE window (like tmux)
 
-vim.opt.tabstop = 2 -- tabwidth
-vim.opt.shiftwidth = 2 -- indent width
-vim.opt.softtabstop = 2 -- soft tab stop not tabs on tab/backspace
-vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.smartindent = true -- smart auto-indent
-vim.opt.autoindent = true -- copy indent from current line
+vim.opt.laststatus = 3
 
-vim.opt.ignorecase = true -- case insensitive search
-vim.opt.smartcase = true -- case sensitive if uppercase in string
-vim.opt.hlsearch = true -- highlight search matches
-vim.opt.incsearch = true -- show matches as you type
+-- ============================================================================
+-- FILE / UNDO SETTINGS
+-- ============================================================================
+-- WHY:
+-- Same logic → still correct in v0.12
 
-vim.opt.signcolumn = "yes" -- always show a sign column
-vim.opt.colorcolumn = "100" -- show a column at 100 position chars
-vim.opt.showmatch = true -- highlights matching brackets
-vim.opt.cmdheight = 1 -- single line command line
-vim.opt.completeopt = "menuone,noinsert,noselect" -- completion options
-vim.opt.showmode = false -- do not show the mode, instead have it in statusline
-vim.opt.pumheight = 10 -- popup menu height
-vim.opt.pumblend = 10 -- popup menu transparency
-vim.opt.winblend = 0 -- floating window transparency
-vim.opt.conceallevel = 0 -- do not hide markup
-vim.opt.concealcursor = "" -- do not hide cursorline in markup
-vim.opt.lazyredraw = true -- do not redraw during macros
-vim.opt.synmaxcol = 300 -- syntax highlighting limit
-vim.opt.fillchars = { eob = " " } -- hide "~" on empty lines
-
--- UNDO: Keep in a file for later use
 local undodir = vim.fn.expand("~/.vim/undodir")
-if
-	vim.fn.isdirectory(undodir) == 0 -- create undodir if nonexistent
-then
+
+if vim.fn.isdirectory(undodir) == 0 then
 	vim.fn.mkdir(undodir, "p")
 end
 
-vim.opt.backup = false -- do not create a backup file
-vim.opt.writebackup = false -- do not write to a backup file
-vim.opt.swapfile = false -- do not create a swapfile
-vim.opt.undofile = true -- do create an undo file
-vim.opt.undodir = undodir -- set the undo directory
-vim.opt.updatetime = 300 -- faster completion
-vim.opt.timeoutlen = 500 -- timeout duration
-vim.opt.ttimeoutlen = 0 -- key code timeout
-vim.opt.autoread = true -- auto-reload changes if outside of neovim
-vim.opt.autowrite = false -- do not auto-save
+vim.opt.backup = false
+vim.opt.writebackup = false
+vim.opt.swapfile = false
+vim.opt.undofile = true
+vim.opt.undodir = undodir
 
-vim.opt.hidden = true -- allow hidden buffers
-vim.opt.errorbells = false -- no error sounds
-vim.opt.backspace = "indent,eol,start" -- better backspace behaviour
-vim.opt.autochdir = false -- do not autochange directories
-vim.opt.iskeyword:append("-") -- include - in words
-vim.opt.path:append("**") -- include subdirs in search
-vim.opt.selection = "inclusive" -- include last char in selection
-vim.opt.mouse = "a" -- enable mouse support
-vim.opt.clipboard:append("unnamedplus") -- use system clipboard
-vim.opt.modifiable = true -- allow buffer modifications
-vim.opt.encoding = "utf-8" -- set encoding
+vim.opt.updatetime = 300
+vim.opt.timeoutlen = 500
+vim.opt.ttimeoutlen = 0
 
--- CURSOR: Blink
+vim.opt.autoread = true
+vim.opt.autowrite = false
+
+-- ============================================================================
+-- GENERAL BEHAVIOR
+-- ============================================================================
+
+vim.opt.hidden = true -- allow switching buffers without saving
+vim.opt.errorbells = false
+vim.opt.backspace = "indent,eol,start"
+vim.opt.autochdir = false
+
+vim.opt.iskeyword:append("-") -- treat - as word
+vim.opt.path:append("**") -- recursive file search
+
+vim.opt.selection = "inclusive"
+vim.opt.mouse = "a"
+vim.opt.modifiable = true
+vim.opt.encoding = "utf-8"
+
+-- ============================================================================
+-- CURSOR
+-- ============================================================================
+-- WHY:
+-- Still valid → no change in v0.12
+
 vim.opt.guicursor =
-	"n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175" -- cursor blinking and settings
-
--- Folding: requires treesitter available at runtime; safe fallback if not
-vim.opt.foldmethod = "expr" -- use expression for folding
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- use treesitter for folding
-vim.opt.foldlevel = 99 -- start with all folds open
-
-vim.opt.splitbelow = true -- horizontal splits go below
-vim.opt.splitright = true -- vertical splits go right
-
-vim.opt.wildmenu = true -- tab completion
-vim.opt.wildmode = "longest:full,full" -- complete longest common match, full completion list, cycle through with Tab
-vim.opt.diffopt:append("linematch:60") -- improve diff display
-vim.opt.redrawtime = 10000 -- increase neovim redraw tolerance
-vim.opt.maxmempattern = 20000 -- increase max memory
+	"n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
 
 -- ============================================================================
--- KEYMAPS
+-- FOLDING (TREESITTER BASED)
 -- ============================================================================
-vim.g.mapleader = " " -- space for leader
-vim.g.maplocalleader = " " -- space for localleader
+-- WHY:
+-- v0.12 improved treesitter, but config remains same
 
--- better movement in wrapped text
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+
+-- ============================================================================
+-- WINDOW BEHAVIOR
+-- ============================================================================
+
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+
+-- ============================================================================
+-- COMMAND-LINE COMPLETION
+-- ============================================================================
+
+vim.opt.wildmenu = true
+vim.opt.wildmode = "longest:full,full"
+
+-- ============================================================================
+-- PERFORMANCE TUNING
+-- ============================================================================
+
+vim.opt.diffopt:append("linematch:60")
+vim.opt.redrawtime = 10000
+vim.opt.maxmempattern = 20000
+
+-- ============================================================================
+-- CORE KEYMAPS (PORTED FROM OLD)
+-- ============================================================================
+
+-- Better movement on wrapped lines
 vim.keymap.set("n", "j", function()
-	return vim.v.count == 0 and "gj" or "j" -- gj
+	return vim.v.count == 0 and "gj" or "j"
 end, { expr = true, silent = true, desc = "Down (wrap-aware)" })
+
 vim.keymap.set("n", "k", function()
-	return vim.v.count == 0 and "gk" or "k" -- gk
+	return vim.v.count == 0 and "gk" or "k"
 end, { expr = true, silent = true, desc = "Up (wrap-aware)" })
 
-vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" }) -- CLEAR Search Highlight
+-- Clear search
+vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
+-- Centered navigation
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" }) -- First SEARCH then press n
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" }) -- First SEARCH then press N
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" }) -- Ctrl+d
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" }) -- Ctrl+u
 
+-- Paste/delete without yank
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" }) -- SPACE+p
 vim.keymap.set({ "n", "v" }, "<leader>x", '"_d', { desc = "Delete without yanking" }) -- SPACE+x
 
+-- Buffer navigation
 vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "Next buffer" }) -- SPACE+bn
 vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" }) -- SPACE+bp
 
+-- Move lines
 vim.keymap.set("n", "<A-j>", ":m .+1<CR>==", { desc = "Move line down" }) -- ALT+j
 vim.keymap.set("n", "<A-k>", ":m .-2<CR>==", { desc = "Move line up" }) -- ALT+k
 vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" }) -- SELECT and ALT+j
 vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" }) -- SELECT and ALT+k
 
+-- Indent retain selection
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" }) -- Select + <
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" }) -- Select + >
 
+-- Join lines keep cursor
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" }) -- J
 
--- FILE PATH
-vim.keymap.set("n", "<leader>pa", function() -- show file path
+-- ============================================================================
+-- FUZZY FIND
+-- ============================================================================
+vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find Files" })
+vim.keymap.set("n", "<leader>fg", ":FzfLua live_grep<CR>", { desc = "FZF Live Grep" })
+vim.keymap.set("n", "<leader>fb", ":FzfLua buffers<CR>", { desc = "FZF Buffers" })
+vim.keymap.set("n", "<leader>fh", ":FzfLua help_tags<CR>", { desc = "FZF Help Tags" })
+vim.keymap.set("n", "<leader>fx", ":FzfLua diagnostics_document<CR>", { desc = "FZF Diagnostics Document" })
+vim.keymap.set("n", "<leader>fX", ":FzfLua diagnostics_workspace<CR>", { desc = "FZF Diagnostics Workspace" })
+
+-- Expert Keymap for the status window
+vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = "Git Status" })
+
+-- ============================================================================
+-- FILE PATH COPY (IMPORTANT FEATURE YOU HAD)
+-- ============================================================================
+
+vim.keymap.set("n", "<leader>pa", function()
 	local path = vim.fn.expand("%:p")
 	vim.fn.setreg("+", path)
 	print("file:", path)
-end, { desc = "Copy full file path" })
-vim.keymap.set("n", "<leader>rpa", function() -- show file path
+end)
+
+vim.keymap.set("n", "<leader>rpa", function()
 	local path = vim.fn.expand("%:.")
 	vim.fn.setreg("+", path)
 	print("file:", path)
-end, { desc = "Copy relative file path" })
+end)
+
+-- ============================================================================
+-- DIAGNOSTICS TOGGLE
+-- ============================================================================
+-- WHY:
+-- Works with new built-in LSP (v0.12)
 
 vim.keymap.set("n", "<leader>td", function()
 	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle diagnostics" })
 
 -- ============================================================================
--- AUTOCMDS
+-- AUTOCMDS (UNCHANGED)
 -- ============================================================================
 
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
--- highlight yanked text
+-- highlight yank
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = augroup,
 	callback = function()
@@ -164,28 +248,20 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- return to last cursor position
+-- restore cursor
 vim.api.nvim_create_autocmd("BufReadPost", {
 	group = augroup,
 	desc = "Restore last cursor position",
 	callback = function()
-		if vim.o.diff then -- except in diff mode
+		if vim.o.diff then
 			return
 		end
-
-		local last_pos = vim.api.nvim_buf_get_mark(0, '"') -- {line, col}
-		local last_line = vim.api.nvim_buf_line_count(0)
-
-		local row = last_pos[1]
-		if row < 1 or row > last_line then
-			return
-		end
-
-		pcall(vim.api.nvim_win_set_cursor, 0, last_pos)
+		local mark = vim.api.nvim_buf_get_mark(0, '"')
+		pcall(vim.api.nvim_win_set_cursor, 0, mark)
 	end,
 })
 
--- wrap, linebreak and spellcheck on markdown and text files
+-- markdown/text behavior
 vim.api.nvim_create_autocmd("FileType", {
 	group = augroup,
 	pattern = { "markdown", "text", "gitcommit" },
@@ -196,26 +272,59 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
--- ============================================================================
--- PLUGINS (vim.pack)
--- ============================================================================
-
--- TREE TOGGLE
-vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
-
--- FUZZY FIND
-vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find Files" })
-vim.keymap.set("n", "<leader>fg", ":FzfLua live_grep<CR>", { desc = "FZF Live Grep" })
-vim.keymap.set("n", "<leader>fb", ":FzfLua buffers<CR>", { desc = "FZF Buffers" })
-vim.keymap.set("n", "<leader>fh", ":FzfLua help_tags<CR>", { desc = "FZF Help Tags" })
-vim.keymap.set("n", "<leader>fx", ":FzfLua diagnostics_document<CR>", { desc = "FZF Diagnostics Document" })
-vim.keymap.set("n", "<leader>fX", ":FzfLua diagnostics_workspace<CR>", { desc = "FZF Diagnostics Workspace" })
-
--- ============================================================================
 --
-vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
-	pattern = "templ",
-	callback = function()
-		vim.treesitter.start()
+-- Enable the byte-compiler
+vim.loader.enable()
+
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("NativeTS", { clear = true }),
+	callback = function(args)
+		local bufnr = args.buf
+		local ft = vim.bo[bufnr].filetype
+
+		-- 1. Ignore "special" buffers like neo-tree, telescope, or help files
+		local ignore_ft = { "neo-tree", "TelescopePrompt", "help", "qf" }
+		for _, name in ipairs(ignore_ft) do
+			if ft == name then
+				return
+			end
+		end
+
+		-- 2. Only start if a parser is actually installed on your Arch system
+		-- This check prevents the "Parser could not be created" error
+		local lang = vim.treesitter.language.get_lang(ft)
+		if lang then
+			-- Use pcall to wrap the start function just in case
+			pcall(vim.treesitter.start, bufnr, lang)
+
+			-- Enable native indentation
+			vim.bo[bufnr].indentexpr = "v:lua.vim.treesitter.indentexpr()"
+		end
 	end,
+})
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
+	command = "checktime",
+})
+
+-- ============================================================================
+-- STATUSLINE
+-- ============================================================================
+_G.sl = require("config.statusline")
+
+vim.opt.statusline = table.concat({
+	" ",
+	"%{v:lua.sl.mode()}",
+	" \u{e0b1} %{v:lua.sl.relpath()}",
+	" \u{e0b1} %{v:lua.sl.git()} %{v:lua.sl.git_diff()}",
+	" \u{e0b1} %h%m%r",
+	" \u{e0b1} %{v:lua.sl.current_function()}",
+	"%=",
+	"%{v:lua.sl.lsp_progress()}",
+	" \u{e0b3} %{v:lua.sl.lsp()}",
+	" \u{e0b3} %{v:lua.sl.formatter()}",
+	" \u{e0b3} %{v:lua.sl.diag()}",
+	" \u{e0b3} %l:%c",
+	" \u{e0b3} %P",
+	" \u{e0b3} %{v:lua.sl.size()} ",
 })

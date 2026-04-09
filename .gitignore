@@ -33,3 +33,6 @@ packer_compiled.lua
 # Test files
 test/
 spec/
+
+# MORE
+nvim-pack-lock.json

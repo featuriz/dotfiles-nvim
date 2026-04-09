@@ -1,24 +1,46 @@
--- format 
-vim.api.nvim_create_autocmd("BufWritePost", {
-	pattern = "*",
-	callback = function()
-		vim.lsp.buf.format({ async = false })
-	end,
+-- https://github.com/stevearc/conform.nvim
+local conform = require("conform")
+
+conform.setup({
+	formatters_by_ft = {
+		lua = { "stylua" },
+		go = { "gofmt", "goimports" },
+		templ = { "templ" },
+		markdown = { "prettierd" },
+		yaml = { "prettierd" },
+		html = { "prettierd" },
+		css = { "prettierd" },
+		javascript = { "prettierd" },
+	},
+	-- Best practice: Format on save
+	format_on_save = {
+		timeout_ms = 500,
+		lsp_fallback = true,
+	},
 })
 
--- go
-vim.api.nvim_create_autocmd("BufWritePost", {
-	pattern = "*.go",
-	callback = function()
-		vim.cmd("silent! !goimports -w %")
-	end,
+-- Which key
+local wk = require("which-key")
+wk.setup({
+	preset = "modern", -- Use the sleek v3+ UI
+	win = {
+		border = "single", -- Matches your Arch/Terminal aesthetic
+	},
+})
+wk.add({
+	{ "<leader>f", group = "find (fzf-lua)" },
+	{ "<leader>g", group = "go (gopls)" },
+	{ "<leader>l", group = "lsp (native v0.12)" },
+	{ "<leader>t", group = "templ/html" },
 })
 
--- lua
-vim.api.nvim_create_autocmd("BufWritePost", {
-	pattern = "*.lua",
-	callback = function()
-		vim.cmd("silent! !stylua -w %")
-	end,
+-- Mason
+require("mason").setup({
+	ui = {
+		icons = {
+			package_installed = "✓",
+			package_pending = "➜",
+			package_uninstalled = "✗",
+		},
+	},
 })
-
