@@ -4,6 +4,11 @@ A **minimal, fast, LSP-first Neovim setup** with AI-assisted completion and zero
 
 ---
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Neovim](https://img.shields.io/badge/Neovim-0.12+-57A143.svg)](https://neovim.io)
+
+---
+
 ## ✨ Highlights
 
 - ⚡ Fast startup (`vim.loader`)
