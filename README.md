@@ -72,7 +72,7 @@ A **minimal, fast, LSP-first Neovim setup** with AI-assisted completion and zero
 ## 🔧 Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nvim-config ~/.config/nvim
+git clone https://github.com/featuriz/dotfiles-nvim ~/.config/nvim
 ```
 
 Then open Neovim:
