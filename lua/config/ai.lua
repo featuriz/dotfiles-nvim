@@ -44,7 +44,7 @@ require("blink.cmp").setup({
 			Windsurf = "󱜙",
 		},
 	},
- 
+
 	-- ----- Completion behavior -----
 	completion = {
 		documentation = { auto_show = true }, -- auto-popup docs for selected item
